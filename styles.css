@@ -5,8 +5,15 @@ body{font-family:Arial,Helvetica,sans-serif;line-height:1.6;margin:0;color:#222;
 .site-header nav a{color:#fff;margin-left:12px;text-decoration:none;font-weight:600}
 .content{max-width:900px;margin:28px auto;padding:0 16px}
 .hero{background:#fff;padding:20px;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
-.blogs, .about{margin-top:18px;background:#fff;padding:16px;border-radius:6px}
+.blogs, .about, .booking{margin-top:18px;background:#fff;padding:16px;border-radius:6px}
+.booking-form{display:flex;flex-direction:column;gap:10px}
+.booking-form input,.booking-form textarea{padding:8px;border:1px solid #ccc;border-radius:4px}
+.booking-form button{padding:10px;background:#2b6cb0;color:#fff;border:none;border-radius:4px;cursor:pointer}
+.booking-form button:hover{background:#1e4a7a}
 .site-footer{padding:16px;text-align:center;color:#666;font-size:14px}
+.site-footer nav{display:flex;justify-content:center;gap:12px;margin-bottom:8px}
+.site-footer nav a{color:#666;text-decoration:none}
+.site-footer nav a:hover{color:#1a73e8}
 a{color:#1a73e8}
 h2,h3{margin-top:0}
 ul{padding-left:18px}
