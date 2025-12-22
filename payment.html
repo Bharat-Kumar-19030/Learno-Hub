@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Secure Payment - LearnWeb Educational Services</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Razorpay Checkout Script -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    .payment-container {
+      max-width: 600px;
+      margin: 60px auto;
+      padding: 40px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    
+    .payment-header {
+      margin-bottom: 30px;
+    }
+    
+    .payment-header h2 {
+      color: #2c3e50;
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+    
+    .payment-header p {
+      color: #7f8c8d;
+      font-size: 16px;
+    }
+    
+    .payment-details {
+      background: #f8f9fa;
+      padding: 25px;
+      border-radius: 8px;
+      margin: 25px 0;
+      text-align: left;
+    }
+    
+    .payment-details .row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #e9ecef;
+    }
+    
+    .payment-details .row:last-child {
+      border-bottom: none;
+      font-weight: bold;
+      font-size: 18px;
+      color: #2c3e50;
+    }
+    
+    .payment-details .label {
+      color: #6c757d;
+    }
+    
+    .payment-details .value {
+      color: #2c3e50;
+      font-weight: 600;
+    }
+    
+    .loading-spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .status-message {
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+      font-weight: 500;
+    }
+    
+    .status-success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .status-error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .status-info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+    
+    .btn-primary {
+      background: #3498db;
+      color: white;
+      padding: 15px 40px;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    
+    .btn-primary:hover {
+      background: #2980b9;
+    }
+    
+    .btn-primary:disabled {
+      background: #95a5a6;
+      cursor: not-allowed;
+    }
+    
+    .secure-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #27ae60;
+      font-size: 14px;
+      margin-top: 20px;
+    }
+    
+    .secure-icon {
+      width: 20px;
+      height: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <h1>LearnWeb</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="services.html">Services</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms &amp; Conditions</a>
+    </nav>
+  </header>
+
+  <main class="content">
+    <div class="payment-container" id="paymentContainer">
+      <div class="payment-header">
+        <h2>🔒 Secure Payment</h2>
+        <p>Educational Service Access Payment</p>
+      </div>
+
+      <div id="loadingSection" style="display: block;">
+        <div class="loading-spinner"></div>
+        <p>Initializing secure payment...</p>
+      </div>
+
+      <div id="paymentSection" style="display: none;">
+        <div class="payment-details">
+          <div class="row">
+            <span class="label">Service Type:</span>
+            <span class="value">Educational Resources</span>
+          </div>
+          <div class="row">
+            <span class="label">Reference ID:</span>
+            <span class="value" id="referenceId">-</span>
+          </div>
+          <div class="row">
+            <span class="label">Amount to Pay:</span>
+            <span class="value" id="amountDisplay">₹0.00</span>
+          </div>
+        </div>
+
+        <div id="statusMessage" class="status-message" style="display: none;"></div>
+
+        <button id="payButton" class="btn-primary">
+          Proceed to Payment
+        </button>
+
+        <div class="secure-badge">
+          <svg class="secure-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+          <span>Secured by Razorpay</span>
+        </div>
+      </div>
+
+      <div id="errorSection" style="display: none;">
+        <div class="status-message status-error">
+          <p id="errorMessage">An error occurred. Please try again.</p>
+        </div>
+        <button onclick="window.history.back()" class="btn-primary">Go Back</button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="services.html">Services</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms &amp; Conditions</a>
+    </nav>
+    <p>&copy; 2025 LearnWeb — Educational resources for developers.</p>
+  </footer>
+
+  <script>
+    // Configuration
+    const BACKEND_URL = 'https://bigbite-backend-i4u4.onrender.com';
+    
+    // Get URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const amount = parseFloat(urlParams.get('amount'));
+    const referenceId = urlParams.get('ref');
+    const returnUrl = decodeURIComponent(urlParams.get('returnUrl') || '');
+
+    console.log('💳 Payment page loaded with params:', { amount, referenceId, returnUrl });
+
+    // Validate parameters
+    if (!amount || !referenceId || !returnUrl) {
+      showError('Invalid payment parameters. Please try again from the main website.');
+      return;
+    }
+
+    // Display payment details
+    document.getElementById('referenceId').textContent = referenceId.slice(-8).toUpperCase();
+    document.getElementById('amountDisplay').textContent = `₹${amount.toFixed(2)}`;
+
+    // Initialize payment
+    let razorpayOrderData = null;
+
+    async function initializePayment() {
+      try {
+        console.log('🔄 Creating Razorpay order...');
+        
+        // Call backend to create Razorpay order
+        const response = await fetch(`${BACKEND_URL}/api/payment/create-order`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            amount: amount,
+            referenceId: referenceId
+          })
+        });
+
+        const data = await response.json();
+        console.log('📦 Razorpay order response:', data);
+
+        if (!data.success) {
+          throw new Error(data.message || 'Failed to create payment order');
+        }
+
+        razorpayOrderData = data;
+
+        // Show payment section
+        document.getElementById('loadingSection').style.display = 'none';
+        document.getElementById('paymentSection').style.display = 'block';
+
+        // Auto-open payment after 1 second
+        setTimeout(() => {
+          openRazorpayCheckout();
+        }, 1000);
+
+      } catch (error) {
+        console.error('❌ Error initializing payment:', error);
+        showError(error.message || 'Failed to initialize payment. Please try again.');
+      }
+    }
+
+    function openRazorpayCheckout() {
+      if (!razorpayOrderData) {
+        showError('Payment order not initialized');
+        return;
+      }
+
+      console.log('🚀 Opening Razorpay checkout...');
+
+      const options = {
+        key: razorpayOrderData.key,
+        amount: razorpayOrderData.order.amount,
+        currency: 'INR',
+        name: 'BigBite - LearnWeb Services',
+        description: 'Educational project – service access',
+        order_id: razorpayOrderData.order.id,
+        prefill: {
+          name: '',
+          email: '',
+          contact: ''
+        },
+        theme: {
+          color: '#3498db'
+        },
+        handler: async function (razorpayResponse) {
+          console.log('✅ Payment successful, verifying...', razorpayResponse);
+          await verifyPayment(razorpayResponse);
+        },
+        modal: {
+          ondismiss: function () {
+            console.log('❌ Payment cancelled by user');
+            showMessage('Payment cancelled. Redirecting back...', 'info');
+            
+            setTimeout(() => {
+              redirectBack('failed', null);
+            }, 2000);
+          }
+        }
+      };
+
+      const razorpay = new Razorpay(options);
+      razorpay.open();
+    }
+
+    async function verifyPayment(razorpayResponse) {
+      try {
+        showMessage('Verifying payment...', 'info');
+
+        console.log('🔐 Verifying payment signature...');
+
+        const verifyResponse = await fetch(`${BACKEND_URL}/api/payment/verify`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            razorpay_order_id: razorpayResponse.razorpay_order_id,
+            razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+            razorpay_signature: razorpayResponse.razorpay_signature,
+          })
+        });
+
+        const verifyData = await verifyResponse.json();
+        console.log('🔍 Verification response:', verifyData);
+
+        if (verifyData.success) {
+          showMessage('Payment verified successfully! Redirecting...', 'success');
+          
+          setTimeout(() => {
+            redirectBack('success', razorpayResponse);
+          }, 1500);
+        } else {
+          throw new Error('Payment verification failed');
+        }
+
+      } catch (error) {
+        console.error('❌ Payment verification error:', error);
+        showMessage('Payment verification failed. Please contact support.', 'error');
+        
+        setTimeout(() => {
+          redirectBack('failed', null);
+        }, 3000);
+      }
+    }
+
+    function redirectBack(status, razorpayResponse) {
+      let redirectUrl = returnUrl;
+      
+      // Add query parameters
+      const params = new URLSearchParams();
+      params.append('payment', status);
+      params.append('ref', referenceId);
+      
+      if (status === 'success' && razorpayResponse) {
+        params.append('razorpay_order_id', razorpayResponse.razorpay_order_id);
+        params.append('razorpay_payment_id', razorpayResponse.razorpay_payment_id);
+        params.append('razorpay_signature', razorpayResponse.razorpay_signature);
+      }
+      
+      const finalUrl = `${redirectUrl}?${params.toString()}`;
+      console.log('🔄 Redirecting to:', finalUrl);
+      
+      window.location.href = finalUrl;
+    }
+
+    function showMessage(message, type) {
+      const statusDiv = document.getElementById('statusMessage');
+      statusDiv.textContent = message;
+      statusDiv.className = `status-message status-${type}`;
+      statusDiv.style.display = 'block';
+    }
+
+    function showError(message) {
+      document.getElementById('loadingSection').style.display = 'none';
+      document.getElementById('paymentSection').style.display = 'none';
+      document.getElementById('errorSection').style.display = 'block';
+      document.getElementById('errorMessage').textContent = message;
+    }
+
+    // Add click handler for pay button (in case auto-open fails)
+    document.getElementById('payButton').addEventListener('click', () => {
+      openRazorpayCheckout();
+    });
+
+    // Start initialization
+    initializePayment();
+  </script>
+</body>
+</html>
