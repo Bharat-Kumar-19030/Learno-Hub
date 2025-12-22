@@ -351,8 +351,16 @@
           color: '#3498db'
         },
         handler: async function (razorpayResponse) {
-          console.log('✅ Payment successful, verifying...', razorpayResponse);
-          await verifyPayment(razorpayResponse);
+          try {
+            console.log('✅ Payment successful, verifying...', razorpayResponse);
+            await verifyPayment(razorpayResponse);
+          } catch (error) {
+            console.error('❌ Payment handler error:', error);
+            showMessage('Payment processing failed. Redirecting...', 'error');
+            setTimeout(() => {
+              redirectBack('failed', null);
+            }, 2000);
+          }
         },
         modal: {
           ondismiss: function () {
@@ -366,8 +374,23 @@
         }
       };
 
-      const razorpay = new Razorpay(options);
-      razorpay.open();
+      try {
+        const razorpay = new Razorpay(options);
+        
+        razorpay.on('payment.failed', function (response) {
+          console.error('❌ Payment failed:', response.error);
+          showMessage('Payment failed. Redirecting...', 'error');
+          
+          setTimeout(() => {
+            redirectBack('failed', null);
+          }, 2000);
+        });
+
+        razorpay.open();
+      } catch (error) {
+        console.error('❌ Razorpay initialization error:', error);
+        showError('Failed to open payment gateway. Please try again.');
+      }
     }
 
     async function verifyPayment(razorpayResponse) {
