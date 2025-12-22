@@ -226,21 +226,21 @@
 
     console.log('💳 Payment page loaded with params:', { amount, referenceId, returnUrl });
 
-    // Validate parameters
-    if (!amount || !referenceId || !returnUrl) {
-      showError('Invalid payment parameters. Please try again from the main website.');
-      return;
-    }
-
-    // Display payment details
-    document.getElementById('referenceId').textContent = referenceId.slice(-8).toUpperCase();
-    document.getElementById('amountDisplay').textContent = `₹${amount.toFixed(2)}`;
-
     // Initialize payment
     let razorpayOrderData = null;
 
     async function initializePayment() {
       try {
+        // Validate parameters first
+        if (!amount || !referenceId || !returnUrl) {
+          showError('Invalid payment parameters. Please try again from the main website.');
+          return;
+        }
+
+        // Display payment details
+        document.getElementById('referenceId').textContent = referenceId.slice(-8).toUpperCase();
+        document.getElementById('amountDisplay').textContent = `₹${amount.toFixed(2)}`;
+
         console.log('🔄 Creating Razorpay order...');
         
         // Call backend to create Razorpay order
