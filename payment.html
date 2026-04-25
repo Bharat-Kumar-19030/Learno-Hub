@@ -424,7 +424,7 @@
         modal: {
           ondismiss: function () {
             console.log('❌ Payment cancelled by user');
-            showMessage('Payment cancelled. Redirecting back...', 'info');
+            showMessage('Payment cancelled. This tab will close shortly...', 'info');
             
             setTimeout(() => {
               redirectBack('failed', null);
@@ -438,7 +438,7 @@
         
         razorpay.on('payment.failed', function (response) {
           console.error('❌ Payment failed:', response.error);
-          showMessage('Payment failed. Redirecting...', 'error');
+          showMessage('Payment failed. This tab will close shortly...', 'error');
           
           setTimeout(() => {
             redirectBack('failed', null);
@@ -474,7 +474,7 @@
         console.log('🔍 Verification response:', verifyData);
 
         if (verifyData.success) {
-          showMessage('Payment verified successfully! Redirecting...', 'success');
+          showMessage('✅ Payment verified! This tab will close shortly...', 'success');
           
           setTimeout(() => {
             redirectBack('success', razorpayResponse);
@@ -494,9 +494,36 @@
     }
 
     function redirectBack(status, razorpayResponse) {
+      // If this tab was opened by the main BigBite app, send the result back via postMessage
+      // and close this tab so the user is returned to the main tab automatically.
+      if (window.opener && !window.opener.closed) {
+        const message = {
+          type: 'PAYMENT_RESULT',
+          status,           // 'success' | 'failed'
+          ref: referenceId,
+          ...(status === 'success' && razorpayResponse
+            ? {
+                razorpay_order_id: razorpayResponse.razorpay_order_id,
+                razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+                razorpay_signature: razorpayResponse.razorpay_signature,
+              }
+            : {}),
+        };
+
+        // Send to any origin that opened this page (the main BigBite app)
+        window.opener.postMessage(message, '*');
+
+        console.log('📨 Sent payment result to opener:', message);
+
+        // Close this payment tab after a short delay so the user can see the status message
+        setTimeout(() => {
+          window.close();
+        }, 1500);
+        return;
+      }
+
+      // Fallback: no opener (e.g., page opened directly) — redirect as before
       let redirectUrl = returnUrl;
-      
-      // Add query parameters
       const params = new URLSearchParams();
       params.append('payment', status);
       params.append('ref', referenceId);
@@ -508,7 +535,7 @@
       }
       
       const finalUrl = `${redirectUrl}?${params.toString()}`;
-      console.log('🔄 Redirecting to:', finalUrl);
+      console.log('🔄 No opener found — redirecting to:', finalUrl);
       
       window.location.href = finalUrl;
     }
